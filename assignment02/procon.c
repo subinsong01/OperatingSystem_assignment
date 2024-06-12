@@ -45,21 +45,21 @@ void* consumer(void* arg) {
 
 // write n into the shared memory
 void mywrite(int n) { 
-  semWait(&semWrite); 
+  sem_wait(&semWrite); 
   pthread_mutex_lock(&critical_section);  // 뮤텍스 잠금 
 
-  queue[wptr] = n; //버퍼
+  queue[wptr] = n; //버퍼에 데이터 쓰기 
   wptr = (wptr + 1) % N_COUNTER; // write pointer 이동 
 
-  pthread_mutex_unlock(&critical_section); 
-  semPost(&semRead); //공유 버퍼에 새로운 데이터가 추가된거 소비자 스레드한테 알리기 
+  pthread_mutex_unlock(&critical_section); // 뮤텍스 해제
+  sem_post(&semRead); //공유 버퍼에 새로운 데이터가 추가된거 소비자 스레드한테 알리기 
 }
 
 // write a value from the shared memory
 int myread() { 
   /* [Write here] */
    sem_wait(&semRead); 
-  pthread_mutex_lock(&critical_section); 
+  pthread_mutex_lock(&critical_section); // 뮤텍스 잠금 
 
   int n = queue[rptr]; //rptr이 가리키는 위치에서 데이터 읽어옴 
   rptr = (rptr + 1) % N_COUNTER; //읽기 작업이 끝나고 다음 위치로 이동 
@@ -92,8 +92,8 @@ int main() {
   //destroy the semaphores
   /* [Write here] */
 
-  semDestroy(&semWrite); 
-  semDestroy(&semRead);
+  sem_destroy(&semWrite); 
+  sem_destroy(&semRead);
 
   pthread_mutex_destroy(&critical_section); // destroy mutex 
   return 0;
